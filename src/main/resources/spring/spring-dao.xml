@@ -53,7 +53,8 @@
         传统方式开发:org.mybatis.spring.mapper.MapperScannerConfigurer
     -->
     <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.bjpowernode.crm.settings.mapper"/>
+        <property name="basePackage" value="com.bjpowernode.crm.settings.mapper,
+        com.bjpowernode.crm.workbench.mapper,com.bjpowernode.crm.base.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 

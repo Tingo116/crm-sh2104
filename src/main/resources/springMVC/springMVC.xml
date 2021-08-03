@@ -8,8 +8,10 @@
 	http://www.springframework.org/schema/mvc
 	http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <!--扫描Controller-->
-    <context:component-scan base-package="com.bjpowernode.crm.settings.controller" />
+    <!--扫描Controller   支持多个包的扫描  中间用逗号，分割开-->
+    <context:component-scan base-package="com.bjpowernode.crm.settings.controller,
+    com.bjpowernode.crm.base.controller,
+    com.bjpowernode.crm.workbench.controller" />
 
     <!--处理器适配器和映射器-->
     <mvc:annotation-driven>
@@ -31,6 +33,10 @@
 
     <!--访问静态资源文件-->
     <mvc:default-servlet-handler />
+    <!--文件上传解析器-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
 
     <!-- 第3步：视图解析器
 	 	转发

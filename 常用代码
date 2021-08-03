@@ -1,0 +1,42 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+//自动补全
+<script type="text/javascript" src="/crm/jquery/bs_typeahead/bootstrap3-typeahead.min.js"></script>
+
+//弹窗
+<link href="/crm/jquery/layer-3.5.1/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="/crm/jquery/layer-3.5.1/layer/layer.js"></script>
+
+//分页插件
+<link href="/crm/jquery/bs_pagination/jquery.bs_pagination.min.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="/crm/jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="/crm/jquery/bs_pagination/en.js" charset="UTF-8"></script>
+
+layer.alert(data.mess, {icon: 6});
+
+
+$.get("",data,function(){},'json')
+$.post("",data,function(){},'json')
+
+//确定删除吗
+ layer.msg('确定删除该条市场活动备注吗', {
+            time: 0 //不自动关闭
+            ,btn: ['确定', '取消']
+            ,yes: function(index){
+                layer.close(index);
+
+
+            }
+        });
+
+
+$.ajax({
+ url : '',
+ type : '',
+ data : ,
+ dataType : 'json/text/pdf/xml'
+ success : function(data){
+ }
+ error : function(data){
+ }
+})
