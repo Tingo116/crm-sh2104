@@ -1,24 +1,30 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
+<%
+	String basePath = request.getScheme() + "://" +
+			request.getServerName() +":" +
+			request.getServerPort() +
+			request.getContextPath() +"/";
+%>
 <html>
 <head>
 <meta charset="UTF-8">
+	<base href="<%=basePath%>"/>
+<link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
 
-<link href="/crm/jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<link href="/crm/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
-
-<script type="text/javascript" src="/crm/jquery/jquery-1.11.1-min.js"></script>
-<script type="text/javascript" src="/crm/jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/crm/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
-<script type="text/javascript" src="/crm/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
+<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 <%--分页插件--%>
-<link href="/crm/jquery/bs_pagination/jquery.bs_pagination.min.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/crm/jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
-<script type="text/javascript" src="/crm/jquery/bs_pagination/en.js" charset="UTF-8"></script>
+<link href="jquery/bs_pagination/jquery.bs_pagination.min.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="jquery/bs_pagination/en.js" charset="UTF-8"></script>
 <%--弹窗--%>
-<link href="/crm/jquery/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/crm/jquery/layer.js"></script>
+<link href="jquery/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="jquery/layer-3.5.1/layer/layer.js"></script>
 <script type="text/javascript">
 </script>
 </head>

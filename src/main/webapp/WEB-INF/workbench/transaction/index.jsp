@@ -42,7 +42,7 @@
 		
 			<div class="btn-toolbar" role="toolbar" style="height: 80px;">
 				<form class="form-inline" role="form" style="position: relative;top: 8%; left: 5px;">
-
+						<input type="hidden" id="tranId">
 					<div class="form-group">
 						<div class="input-group">
 							<div class="input-group-addon">所有者</div>
@@ -115,9 +115,9 @@
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 10px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" onclick="window.location.href='save.html';"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" onclick="window.location.href='edit.html';"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-primary" onclick="window.location.href='/crm/toView/workbench/transaction/save';"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" onclick="openUpdateModal()" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" onclick="deleteTransaction()" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				
 				
@@ -192,7 +192,7 @@
 			'type' : $('#type').val(),
 			'owner' : $('#owner').val(),
 			'source' : $('#source').val(),
-			'customerId' : $('#customerId').val()
+			'contactsId' : $('#contactsId').val()
 		},function(data) {
 			$('#transactionBody').html("");
 			var transactions = data.list;
@@ -236,6 +236,77 @@
 	function queryTransaction() {
 		refresh(1,5);
 	}
+
+
+	//全选
+	$('#father').click(function () {
+		$('.son').prop('checked',$(this).prop("checked"));
+	});
+	//反选功能的实现
+	//思路是先获取页面总元素个数 和选中的子元素个数  判断长度是否相等
+	$('#transactionBody').on('click','.son',function () {
+		var totalLength = $('.son').length;
+		var checkedLength = $('.son:checked').length;
+		if (totalLength == checkedLength){
+			//选中父类元素
+			$('#father').prop('checked',true)
+		} else {
+			$('#father').prop('checked',false)
+		}
+	});
+
+	//删除功能的实现
+	function deleteTransaction() {
+		//定义一个数组   存放获取的数据
+		var ids = [];
+		//遍历数组  将选中的id放入数组中
+		$('.son:checked').each(function () {
+			ids.push($(this).val());
+		});
+
+		layer.confirm('确认删除该条交易记录吗？', {
+			btn: ['确定', '取消'] //可以无限个按钮
+		}, function(index, layero){
+			//按钮【按钮一】的回调
+			layer.close(index);
+			// alert(ids);
+			//发送  利用join()方法进行，号拼接
+			$.post("/crm/workbench/transaction/deleteTransaction",{
+				'ids':ids.join()
+			},function(data){
+				if (data.ok){
+					layer.alert(data.messa, {icon: 6});
+					//手动刷新页面
+					refresh(1,5);
+				} else {
+					layer.alert(data.mess, {icon: 5});
+				}
+			},'json');
+		}, function(index){
+		});
+	}
+
+	//================添加和修改交易信息===================
+	//这里稍微有点不一样这是页面的跳转到编辑页面  这里要做的事情  是判断是否只是选中一个
+	//剩下的修改的任务  回编辑页面去修改   这里还要考虑传一个id号过去  怎么传    需要设置一个隐藏域
+	function openUpdateModal() {
+		//判断是否只选中了一条数据
+		var checkedLength = $('.son:checked').length;
+		if (checkedLength == 0){
+			layer.alert("先选中要修改的记录!", {icon: 5});
+		} else if (checkedLength > 1){
+			layer.alert("一次只能修改一条记录!", {icon: 5});
+		} else {
+	/*		//发送请求  根据id  查询交易信息  //不用  直接携带参数
+			$.post("/crm/workbench/transaction/queryTransaction",{
+				'id':$(".son:checked").val()
+			},function (data) {
+			},'json');*/
+			window.location.href= "/crm/toView/workbench/transaction/edit?id="+$(".son:checked").val();
+		}
+
+	}
+
 </script>
 </body>
 </html>

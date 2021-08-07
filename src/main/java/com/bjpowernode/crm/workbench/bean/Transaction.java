@@ -6,6 +6,7 @@ import tk.mybatis.mapper.code.Style;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 
 @Data
@@ -33,5 +34,11 @@ public class Transaction {
     private String description;
     private String contactSummary;
     private String nextContactTime;
+
+    @Transient
+    private String activityName;
+
+    @Transient
+    private String contactName;
 
 }

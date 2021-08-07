@@ -25,5 +25,7 @@ public class ContactsRemark {
 
     @Transient
     private String img;
+    @Transient
+    private String activityName;
 
 }

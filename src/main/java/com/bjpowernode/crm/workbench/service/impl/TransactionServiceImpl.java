@@ -1,11 +1,17 @@
 package com.bjpowernode.crm.workbench.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.bjpowernode.crm.base.exception.CrmEnum;
+import com.bjpowernode.crm.base.exception.CrmException;
+import com.bjpowernode.crm.base.util.DateTimeUtil;
+import com.bjpowernode.crm.base.util.UUIDUtil;
 import com.bjpowernode.crm.settings.bean.User;
 import com.bjpowernode.crm.settings.mapper.UserMapper;
+import com.bjpowernode.crm.workbench.bean.Activity;
 import com.bjpowernode.crm.workbench.bean.Contacts;
 import com.bjpowernode.crm.workbench.bean.Customer;
 import com.bjpowernode.crm.workbench.bean.Transaction;
+import com.bjpowernode.crm.workbench.mapper.ActivityMapper;
 import com.bjpowernode.crm.workbench.mapper.ContactMapper;
 import com.bjpowernode.crm.workbench.mapper.CustomerMapper;
 import com.bjpowernode.crm.workbench.mapper.TransactionMapper;
@@ -29,6 +35,10 @@ public class TransactionServiceImpl implements TransactionService {
     private CustomerMapper customerMapper;
     @Autowired
     private ContactMapper contactMapper;
+    @Autowired
+    private ActivityMapper activityMapper;
+
+
     @Override
     public PageInfo<Transaction> list(Integer page, Integer pageSize, Transaction transaction){
         Example example = new Example(Transaction.class);
@@ -112,5 +122,109 @@ public class TransactionServiceImpl implements TransactionService {
 
 
         return pageInfo;
+    }
+
+    //点进详情页
+    @Override
+    public Transaction toDetail(String id) {
+        Transaction transaction = transactionMapper.selectByPrimaryKey(id);
+
+        //设置用户
+        User user = userMapper.selectByPrimaryKey(transaction.getOwner());
+        transaction.setOwner(user.getName());
+        // 设置联系人
+        Contacts contacts = contactMapper.selectByPrimaryKey(transaction.getContactsId());
+        transaction.setContactsId(contacts.getFullname());
+        // 设置客户
+        Customer customer = customerMapper.selectByPrimaryKey(transaction.getCustomerId());
+        transaction.setCustomerId(customer.getName());
+        //设置市场活动源
+        Activity activity = activityMapper.selectByPrimaryKey(transaction.getActivityId());
+        transaction.setActivityId(activity.getName());
+        return transaction;
+    }
+
+    //查询交易信息  显示到详情页
+    @Override
+    public Transaction queryTransaction(String id) {
+        Transaction transaction = transactionMapper.selectByPrimaryKey(id);
+        //设置联系人名称
+        Contacts contacts = contactMapper.selectByPrimaryKey(transaction.getContactsId());
+        transaction.setContactName(contacts.getFullname());
+        // 设置客户
+        Customer customer = customerMapper.selectByPrimaryKey(transaction.getCustomerId());
+        transaction.setCustomerId(customer.getName());
+        //设置市场活动源
+        Activity activity = activityMapper.selectByPrimaryKey(transaction.getActivityId());
+        transaction.setActivityName(activity.getName());
+        return transaction;
+    }
+
+    //更新交易信息
+    @Override
+    public void updateTran(Transaction transaction, User user) {
+        transaction.setEditBy(user.getName());
+        transaction.setEditTime(DateTimeUtil.getSysTime());
+        //设置客户  客户是唯一的
+        Example example = new Example(Customer.class);
+        example.createCriteria().andEqualTo("name",transaction.getCustomerId());
+        List<Customer> customers = customerMapper.selectByExample(example);
+        if (customers.size() > 0){
+            Customer customer = customers.get(0);
+            transaction.setCustomerId(customer.getId());
+        }else {
+            //创建新的客户
+            Customer customer = new Customer();
+            customer.setId(UUIDUtil.getUUID());
+            customer.setOwner(user.getId());
+            customer.setName(transaction.getCustomerId());
+            customer.setCreateBy(user.getName());
+            customer.setCreateTime(DateTimeUtil.getSysTime());
+            customer.setContactSummary(transaction.getContactSummary());
+            customer.setNextContactTime(transaction.getNextContactTime());
+            customer.setDescription(transaction.getDescription());
+            int i = customerMapper.insertSelective(customer);
+            if (i == 0){
+                throw new CrmException(CrmEnum.TRAN_UPDATE);
+            }
+        }
+
+        //还有活动和联系人怎么存
+
+        int i = transactionMapper.updateByPrimaryKeySelective(transaction);
+        if (i == 0){
+            throw new CrmException(CrmEnum.TRAN_UPDATE);
+        }
+    }
+
+    //编辑页面中  点击搜素市场活动  包括模糊查询
+    @Override
+    public List<Activity> queryActivity(String name) {
+        Example example = new Example(Activity.class);
+        Example.Criteria criteria = example.createCriteria();
+        if (StrUtil.isNotEmpty(name)){
+            criteria.andLike("name","%"+name+"%");
+        }
+        List<Activity> activities = activityMapper.selectByExample(example);
+        //设置所有者
+        for (Activity activity : activities) {
+            User user = userMapper.selectByPrimaryKey(activity.getOwner());
+            activity.setOwner(user.getName());
+        }
+        return activities;
+    }
+
+
+    //查找联系人
+    @Override
+    public List<Contacts> queryContacts(String name) {
+        Example example = new Example(Contacts.class);
+        Example.Criteria criteria = example.createCriteria();
+        //判断是否模糊查询
+        if (StrUtil.isNotEmpty(name)){
+            criteria.andLike("name","%"+name+"%");
+        }
+        List<Contacts> contacts = contactMapper.selectByExample(example);
+        return contacts;
     }
 }

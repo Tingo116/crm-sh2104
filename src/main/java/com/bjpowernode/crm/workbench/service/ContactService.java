@@ -23,4 +23,5 @@ public interface ContactService {
 
     ContactsRemark addRemark(ContactsRemark contactsRemark, User user);
 
+    void deleteRemark(String id);
 }

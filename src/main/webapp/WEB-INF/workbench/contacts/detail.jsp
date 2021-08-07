@@ -3,15 +3,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
+	<link href="/crm/jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="/crm/jquery/jquery-1.11.1-min.js"></script>
+	<script type="text/javascript" src="/crm/jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 
-<link href="/crm/jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/crm/jquery/jquery-1.11.1-min.js"></script>
-<script type="text/javascript" src="/crm/jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+	<link href="/crm/jquery/layer-3.5.1/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="/crm/jquery/layer-3.5.1/layer/layer.js"></script>
 
-<link href="/crm/jquery/layer-3.5.1/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/crm/jquery/layer-3.5.1/layer/layer.js"></script>
-
-<script type="text/javascript">
+	<script type="text/javascript">
 
 	//默认情况下取消和保存按钮是隐藏的
 	var cancelAndSaveBtnDefault = true;
@@ -56,6 +55,36 @@
 
 </head>
 <body>
+<!-- 修改联系人备注的模态窗口 -->
+<div class="modal fade" id="editRemarkModal" role="dialog">
+	<%-- 备注的id --%>
+	<input type="hidden" id="remarkId">
+	<div class="modal-dialog" role="document" style="width: 40%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myEditModalLabel">修改备注</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" role="form">
+					<%--<input type="hidden" id="remarkFormId" name="id">--%>
+					<div class="form-group">
+						<label for="edit-describe" class="col-sm-2 control-label">内容</label>
+						<div class="col-sm-10" style="width: 81%;">
+							<textarea class="form-control" rows="3" id="noteContent"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				<button type="button" class="btn btn-primary" id="updateRemarkBtn">更新</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 	<!-- 解除联系人和市场活动关联的模态窗口 -->
 	<div class="modal fade" id="unbundActivityModal" role="dialog">
@@ -481,26 +510,29 @@
 		$("#nextContactTime").text(data.nextContactTime);
 		$("#address").text(data.address);
 
+		//把备注id  设置到隐藏域中
+
 		//拼接
-		var contactsRemarks = data.t;
-		for (var i =0;i<contactsRemarks.length;i++){}
+		var contactsRemarks = data.contactsRemarks;
+		for (var i = 0;i<contactsRemarks.length;i++){
 		var contactsRemark = contactsRemarks[i];
 		refresh(contactsRemark);
-		
+			//把备注id  设置到隐藏域中
+	}
 
 	},'json');
 
 	//=============抽取一个刷新备注列表的方法===========
-	function refresh(contactRemark) {
-		$('#remarkDiv').before("<div class=\"remarkDiv\" id="+contactRemark.id+"remarkDiv style=\"height: 60px;\">\n" +
-				"\t\t\t\t<img title=\"zhangsan\" src='"+contactRemark.img+"' style=\"width: 30px; height:30px;\">\n" +
+	function refresh(contactsRemark){
+		$('#remarkDiv').before("<div class=\"remarkDiv\" id='"+contactsRemark.id+"remarkDiv' style=\"height: 60px;\">\n" +
+				"\t\t\t\t<img title=\"zhangsan\" src='"+contactsRemark.img+"' style=\"width: 30px; height:30px;\">\n" +
 				"\t\t\t\t<div style=\"position: relative; top: -40px; left: 40px;\" >\n" +
-				"\t\t\t\t\t<h5 id="+contactRemark.id+"h5>"+contactRemark.noteContent+"</h5>\n" +
-				"\t\t\t\t\t<font color=\"gray\">市场活动</font> <font color=\"gray\">-</font> <b>"+contactRemark.activityId+"</b> <small style=\"color: gray;\"> "+contactRemark.createTime+" 由"+contactRemark.createBy+"创建，由"+contactRemark.editBy+"于"+contactRemark.editTime+"修改</small>\n" +
+				"\t\t\t\t\t<h5 id="+contactsRemark.id+"h5>"+contactsRemark.noteContent+"</h5>\n" +
+				"\t\t\t\t\t<font color=\"gray\">联系人</font> <font color=\"gray\">-</font> <b>"+contactsRemark.contactsId+"</b> <small style=\"color: gray;\"> "+contactsRemark.createTime+" 由"+contactsRemark.createBy+"创建</small>\n" +
 				"\t\t\t\t\t<div style=\"position: relative; left: 550px; top: -30px; height: 30px; width: 100px; display: none;\">\n" +
-				"\t\t\t\t\t\t<a class=\"myHref\" onclick=\"opencontactRemarkModal('"+contactRemark.id+"','"+contactRemark.noteContent+"')\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>\n" +
+				"\t\t\t\t\t\t<a class=\"myHref\" onclick=\"opencontactsRemarkModal('"+contactsRemark.id+"','"+contactsRemark.noteContent+"')\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>\n" +
 				"\t\t\t\t\t\t&nbsp;&nbsp;&nbsp;&nbsp;\n" +
-				"\t\t\t\t\t\t<a class=\"myHref\" onclick=\"deletecontactRemark('"+contactRemark.id+"')\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-remove\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>\n" +
+				"\t\t\t\t\t\t<a class=\"myHref\" onclick=\"deletecontactsRemark('"+contactsRemark.id+"')\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-remove\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>\n" +
 				"\t\t\t\t\t</div>\n" +
 				"\t\t\t\t</div>\n" +
 				"\t\t\t</div>");
@@ -525,17 +557,53 @@
 			'contactsId':'${id}',
 			'noteContent':$("#remark").val()
 		},function(data){
-			var contactRemark = data.t;
+			var contactsRemark = data.t;
 			if (data.ok){
 				layer.alert(data.mess, {icon: 6});
 				//    清空文本框
 				$("#remark").val("");
-				refresh(contactRemark);
+				refresh(contactsRemark);
 			}else {
 				layer.alert(data.mess, {icon: 4});
 			}
 		},'json')
 	}
+
+	//备注的删除
+	function deletecontactsRemark(id) {
+		//确定删除吗
+		layer.msg('确定删除该条联系人备注吗', {
+			time: 0 //不自动关闭
+			,btn: ['确定', '取消']
+			,yes: function(index){
+				layer.close(index);
+				$.post("/crm/workbench/contacts/deleteRemark",{
+					'id':id
+				},function (data) {
+					if (data.ok){
+						layer.alert(data.mess, {icon: 6});
+						// refresh(activityRemark);  这里没有返回activityRemark对象
+						//所以无法刷新  只能从页面删除dom元素
+						$("#"+id+"remarkDiv").remove();
+					}else{
+						layer.alert(data.mess, {icon: 5});
+					}
+				},'json');
+			}
+		});
+	}
+	//备注的修改  要传递的有id  noteContent
+	function opencontactsRemarkModal(id,noteContent) {
+		//打开模态框   把id值设置到隐藏域中 后面修改保存时要用
+		$("#editRemarkModal").modal('show');
+		$("#remark").val(id);
+
+		//把内容直接写进文本域中 这里可以少写一次查询
+		$("#noteContent").val(noteContent);
+	}
+
+
+
 </script>
 </body>
 </html>

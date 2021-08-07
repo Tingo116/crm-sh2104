@@ -100,6 +100,22 @@ public class ContactController {
     }
 
 
+    //备注的删除
+    @RequestMapping("/workbench/contacts/deleteRemark")
+    @ResponseBody
+    public ResultVo deleteRemark(String id){
+        ResultVo resultVo = new ResultVo();
+        try {
+            contactService.deleteRemark(id);
+            resultVo.setOk(true);
+            resultVo.setMess("删除联系人备注成功！！！");
+        } catch (CrmException e) {
+            resultVo.setMess(e.getMessage());
+        }
+        return resultVo;
+    }
+
+
 
 
 

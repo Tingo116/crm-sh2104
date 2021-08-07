@@ -7,6 +7,7 @@ import tk.mybatis.mapper.code.Style;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Data
 @Table(name = "tbl_clue_remark")
@@ -22,5 +23,8 @@ public class ClueRemark {
     private String editTime;
     private String editFlag;
     private String clueId;
+
+    @Transient
+    private String img;
 
 }

@@ -40,3 +40,12 @@ $.ajax({
  error : function(data){
  }
 })
+
+
+<%
+	String basePath = request.getScheme() + "://" +
+			request.getServerName() +":" +
+			request.getServerPort() +
+			request.getContextPath() +"/";
+%>
+<base href="<%=basePath%>"/>

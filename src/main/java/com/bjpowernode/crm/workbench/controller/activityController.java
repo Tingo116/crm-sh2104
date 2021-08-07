@@ -72,7 +72,7 @@ public class activityController {
         return activity;
     }
 
-    //市场活动的添加
+    //市场活动备注的添加
     @RequestMapping("/workbench/activity/addRemark")
     @ResponseBody
     public ResultVo addRemark(ActivityRemark activityRemark,HttpSession session){

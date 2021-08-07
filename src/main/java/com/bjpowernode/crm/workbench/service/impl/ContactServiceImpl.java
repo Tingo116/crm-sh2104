@@ -8,12 +8,8 @@ import com.bjpowernode.crm.base.util.DateTimeUtil;
 import com.bjpowernode.crm.base.util.UUIDUtil;
 import com.bjpowernode.crm.settings.bean.User;
 import com.bjpowernode.crm.settings.mapper.UserMapper;
-import com.bjpowernode.crm.workbench.bean.Contacts;
-import com.bjpowernode.crm.workbench.bean.ContactsRemark;
-import com.bjpowernode.crm.workbench.bean.Customer;
-import com.bjpowernode.crm.workbench.mapper.ContactMapper;
-import com.bjpowernode.crm.workbench.mapper.ContactsRemarkMapper;
-import com.bjpowernode.crm.workbench.mapper.CustomerMapper;
+import com.bjpowernode.crm.workbench.bean.*;
+import com.bjpowernode.crm.workbench.mapper.*;
 import com.bjpowernode.crm.workbench.service.ContactService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -35,6 +31,10 @@ public class ContactServiceImpl implements ContactService {
     private CustomerMapper customerMapper;
     @Autowired
     private ContactsRemarkMapper contactsRemarkMapper;
+    @Autowired
+    private ContactActivityMapper contactActivityMapper;
+    @Autowired
+    private ActivityMapper activityMapper;
     @Override
     public PageInfo<Contacts> list(Integer page, Integer pageSize, Contacts contacts) {
         Example example = new Example(Contacts.class);
@@ -209,20 +209,20 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contacts toDetail(String id) {
         Contacts contacts = contactMapper.selectByPrimaryKey(id);
-        //设置所有者
-        User user = userMapper.selectByPrimaryKey(contacts.getOwner());
-        String img = user.getImg();
-        contacts.setOwner(user.getName());
         //查询备注字段
         ContactsRemark contactsRemark = new ContactsRemark();
         contactsRemark.setContactsId(id);
-        List<ContactsRemark> select = contactsRemarkMapper.select(contactsRemark);
-        for (ContactsRemark remark : select) {
-            remark.setImg(img);
+        List<ContactsRemark> remarks = contactsRemarkMapper.select(contactsRemark);
+        //根据创建者查找id  设置备注头像
+        for (ContactsRemark remark : remarks) {
+            String createBy = remark.getCreateBy();
+            Example example = new Example(User.class);
+            example.createCriteria().andEqualTo("name", createBy);
+            List<User> users = userMapper.selectByExample(example);
+            User user = users.get(0);
+            remark.setImg(user.getImg());
         }
-
-        //设置头像
-        contacts.setContactsRemarks(select);
+        contacts.setContactsRemarks(remarks);
         return contacts;
     }
 
@@ -232,6 +232,7 @@ public class ContactServiceImpl implements ContactService {
         contactsRemark.setId(UUIDUtil.getUUID());
         contactsRemark.setCreateBy(user.getName());
         contactsRemark.setCreateTime(DateTimeUtil.getSysTime());
+        contactsRemark.setImg(user.getImg());
         int insert = contactsRemarkMapper.insert(contactsRemark);
         if (insert == 0){
             throw new CrmException(CrmEnum.CUSTOMER_REMARK_INSERT);
@@ -239,5 +240,16 @@ public class ContactServiceImpl implements ContactService {
         //
 
         return contactsRemark;
+    }
+
+    //备注的删除
+    @Override
+    public void deleteRemark(String id) {
+        //id 是备注的id
+        int i = contactsRemarkMapper.deleteByPrimaryKey(id);
+        if (i == 0){
+            throw new CrmException(CrmEnum.CONTACT_REMARK_DELETE);
+        }
+
     }
 }

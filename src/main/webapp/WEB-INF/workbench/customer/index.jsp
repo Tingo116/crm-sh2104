@@ -18,7 +18,7 @@
 <script type="text/javascript" src="/crm/jquery/bs_pagination/en.js" charset="UTF-8"></script>
 <%--弹窗--%>
 <link href="/crm/jquery/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/crm/jquery/layer.js"></script>
+	<script type="text/javascript" src="/crm/jquery/layer-3.5.1/layer/layer.js"></script>
 <script type="text/javascript">
 
 	$(function(){
