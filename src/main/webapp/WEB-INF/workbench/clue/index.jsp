@@ -396,6 +396,7 @@
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createClueModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
       <button type="button" onclick="openModal()" class="btn btn-default" data-toggle="modal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
       <button type="button" onclick="deleteClue()" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+        <button type="button" onclick="exportExcel()" class="btn btn-success"><span class="glyphicon glyphicon-download-alt"></span> 导出报表</button>
     </div>
 
 
@@ -631,8 +632,12 @@ function deleteClue() {
                 layer.alert(data.mess,{icon:5});
             }
         },'json')
-
     }
+//导出报表
+function exportExcel() {
+    location.href = "/crm/workbench/clue/exportExcel";
+
+}
 
 
 

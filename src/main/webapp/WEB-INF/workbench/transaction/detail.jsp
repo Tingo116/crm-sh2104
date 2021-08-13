@@ -21,6 +21,8 @@
 	
 <script type="text/javascript" src="/crm/jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="/crm/jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+	<link href="/crm/jquery/layer-3.5.1/layer/theme/default/layer.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="/crm/jquery/layer-3.5.1/layer/layer.js"></script>
 
 <script type="text/javascript">
 
@@ -100,7 +102,7 @@
 	<!-- 大标题 -->
 	<div style="position: relative; left: 40px; top: -30px;">
 		<div class="page-header">
-			<h3>动力节点-交易01 <small>￥5,000</small></h3>
+			<h3 id="tranInfo"><small id="tranMoney"></small></h3>
 		</div>
 		<div style="position: relative; height: 50px; width: 250px;  top: -72px; left: 700px;">
 			<button type="button" class="btn btn-default" onclick="window.location.href='edit.html';"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
@@ -109,8 +111,8 @@
 	</div>
 
 	<!-- 阶段状态 -->
-	<div style="position: relative; left: 40px; top: -50px;">
-		阶段&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<div style="position: relative; left: 40px; top: -50px;" id="stageDiv">
+<%--		阶段&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="资质审查" style="color: #90F790;"></span>
 		-----------
 		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="需求分析" style="color: #90F790;"></span>
@@ -129,7 +131,7 @@
 		-----------
 		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="因竞争丢失关闭"></span>
 		-----------
-		<span class="closingDate">2010-10-10</span>
+		<span class="closingDate">2010-10-10</span>--%>
 	</div>
 
 	<!-- 详细信息 -->
@@ -239,7 +241,7 @@
 				<textarea id="remark" class="form-control" style="width: 850px; resize : none;" rows="2"  placeholder="添加备注..."></textarea>
 				<p id="cancelAndSaveBtn" style="position: relative;left: 737px; top: 10px; display: none;">
 					<button id="cancelBtn" type="button" class="btn btn-default">取消</button>
-					<button type="button" class="btn btn-primary">保存</button>
+					<button type="button" onclick="saveRemark()" class="btn btn-primary">保存</button>
 				</p>
 			</form>
 		</div>
@@ -263,35 +265,18 @@
 							<td>创建人</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
+					<tbody id="historyBody">
+					<%--	<tr>
 							<td>资质审查</td>
 							<td>5,000</td>
 							<td>10</td>
 							<td>2017-02-07</td>
 							<td>2016-10-10 10:10:10</td>
 							<td>zhangsan</td>
-						</tr>
-						<tr>
-							<td>需求分析</td>
-							<td>5,000</td>
-							<td>20</td>
-							<td>2017-02-07</td>
-							<td>2016-10-20 10:10:10</td>
-							<td>zhangsan</td>
-						</tr>
-						<tr>
-							<td>谈判/复审</td>
-							<td>5,000</td>
-							<td>90</td>
-							<td>2017-02-07</td>
-							<td>2017-02-09 10:10:10</td>
-							<td>zhangsan</td>
-						</tr>
+						</tr>--%>
 					</tbody>
 				</table>
 			</div>
-			
 		</div>
 	</div>
 	
@@ -301,6 +286,11 @@
 	$.post("/crm/workbench/transaction/toDetail",{
 		'id':'${id}'
 	},function (data) {
+		//返回 的是交易对象  里面包含自己的信息   还有两个list
+		// 一个交易历史   一个备注
+		//拼接显示的大标题
+		$("#tranInfo").text(data.customerId+"-"+data.name);
+		$("#tranMoney").text(data.money);
 		//拼接交易详细信息
 		$("#head_name").text(data.name);
 		$("#headMoney").text(data.money);
@@ -322,21 +312,33 @@
 		$("#description").text(data.description);
 		$("#contactSummary").text(data.contactSummary);
 		$("#nextContactTime").text(data.nextContactTime);
+
+		//拼接交易备注
 		var transactionRemarks = data.transactionRemarks;
 		for (var i = 0;i < transactionRemarks.length;i++){
 			var transactionRemark = transactionRemarks[i];
 			addRemark(transactionRemark);
 		}
 
+		//拼接交易历史
+		$("#historyBody").html("");
+        var transactionHistories = data.transactionHistories;
+		for (var i = 0;i<transactionHistories.length;i++){
+		    var transactionHistory = transactionHistories[i];
+            addHistories(transactionHistory);
+        }
+		//刷新交易阶段
+		refreshStage();
+
 	},'json');
 
 	//交易备注的拼接方法
 	function addRemark(transactionRemark) {
 		$("#remarkDiv").before("<div class=\"remarkDiv\" style=\"height: 60px;\">\n" +
-				"\t\t\t<img title=\"zhangsan\" src="+transactionRemark.img+" style=\"width: 30px; height:30px;\">\n" +
+				"\t\t\t<img title=\"zhangsan\" src='"+transactionRemark.img+"' style=\"width: 30px; height:30px;\">\n" +
 				"\t\t\t<div style=\"position: relative; top: -40px; left: 40px;\" >\n" +
 				"\t\t\t\t<h5>"+transactionRemark.noteContent+"</h5>\n" +
-				"\t\t\t\t<font color=\"gray\">交易</font> <font color=\"gray\">-</font> <b>"+transactionRemark.transactionId+"</b> <small style=\"color: gray;\">"+transactionRemark.createTime+"由"+transactionRemark.createBy+"</small>\n" +
+				"\t\t\t\t<font color=\"gray\">交易</font> <font color=\"gray\">-</font> <b>"+transactionRemark.tranId+"</b> <small style=\"color: gray;\">"+transactionRemark.createTime+"由"+transactionRemark.createBy+"</small>\n" +
 				"\t\t\t\t<div style=\"position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;\">\n" +
 				"\t\t\t\t\t<a class=\"myHref\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>\n" +
 				"\t\t\t\t\t&nbsp;&nbsp;&nbsp;&nbsp;\n" +
@@ -361,6 +363,109 @@
 			$(this).children("span").css("color","#E6E6E6");
 		});
 	}
+	//拼接交易历史记录
+    function addHistories(transactionHistory) {
+        $("#historyBody").append("<tr>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.stage+"</td>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.money+"</td>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.possibility+"</td>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.expectedDate+"</td>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.createTime+"</td>\n" +
+            "\t\t\t\t\t\t\t<td>"+transactionHistory.createBy+"</td>\n" +
+            "\t\t\t\t\t\t</tr>");
+    }
+
+    //抽取出一个刷新交易状态进度的方法
+    function refreshStage(position) {
+        $.post("/crm/workbench/transaction/stageList",{
+        	'id':'${id}',
+			'position':position
+		},function (data) {
+			//清空一下不然会在后面一直拼
+			$("#stageDiv").html("");
+			//拼阶段图标的头
+			$("#stageDiv").append("阶段&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        //	data  是resultVo  里面有一个查询出来的 t  表示单个交易阶段
+		//	还有显示所有交易阶段的集合
+			if (data.t != null){
+				//这里说明是进行了修改  该详情页的阶段和可能性
+				var history = data.t;
+				$("#stage").text(history.stage);
+				$("#possibility").text(history.possibility);
+
+				//同时还要添加下面的交易历史记录
+				addHistories(history);
+
+			} 
+			
+			var stages = data.list;
+			for (var i = 0;i <stages.length;i ++){
+				var stage = stages[i];
+				//判断应该显示什么样的图标
+				//注意这里要自定义一个属性position  用于显示图标的位置
+				if(stage.type == "绿圈"){
+					$('#stageDiv').append("<span position="+stage.position +" class=\"glyphicon glyphicon-ok-circle mystage\" data-toggle=\"popover\" data-placement=\"bottom\" data-content=\""+stage.content+":"+stage.possibility+" \" style=\"color: #90F790;\"></span>");
+				}else if(stage.type == "绿勾"){
+					$('#stageDiv').append("<span position="+stage.position +" class=\"glyphicon glyphicon-map-marker mystage\" data-toggle=\"popover\" data-placement=\"bottom\" data-content=\""+stage.content+":"+stage.possibility+"\" style=\"color: #90F790;\"></span>");
+				}else if(stage.type == "黑圈"){
+					$('#stageDiv').append("<span position="+stage.position +" class=\"glyphicon glyphicon-record mystage\" data-toggle=\"popover\" data-placement=\"bottom\" data-content=\""+stage.content+":"+stage.possibility+"\"></span>");
+				}else if(stage.type == "红叉"){
+					$('#stageDiv').append("<span position="+stage.position +" class=\"glyphicon glyphicon-remove mystage\" style='color:red' data-toggle=\"popover\" data-placement=\"bottom\" data-content=\""+stage.content+":"+stage.possibility+"\"></span>");
+				}else if(stage.type == "黑叉"){
+					$('#stageDiv').append("<span position="+stage.position +" class=\"glyphicon glyphicon-remove mystage\" data-toggle=\"popover\" data-placement=\"bottom\" data-content=\""+stage.content+":"+stage.possibility+"\"></span>");
+				}
+				$('#stageDiv').append("-----------");
+			}
+			$('#stageDiv').append(new Date().toLocaleDateString());
+			//鼠标放在阶段  提示信息的功能需要重新弄一下
+			$(".mystage").popover({
+				trigger:'manual',
+				placement : 'bottom',
+				html: 'true',
+				animation: false
+			}).on("mouseenter", function () {
+				var _this = this;
+				$(this).popover("show");
+				$(this).siblings(".popover").on("mouseleave", function () {
+					$(_this).popover('hide');
+				});
+			}).on("mouseleave", function () {
+				var _this = this;
+				setTimeout(function () {
+					if (!$(".popover:hover").length) {
+						$(_this).popover("hide")
+					}
+				}, 100);
+			});
+        },'json');
+    }
+    //点击进度条进行修改  用on事件
+	$("#stageDiv").on('click','span',function () {
+		var position = $(this).attr("position");
+		refreshStage(position);
+	});
+
+	//显示交易备注信息的添加
+	function saveRemark(){
+		$.post("/crm/workbench/transaction/saveRemark",{
+			'noteContent':$("#remark").val(),
+			'tranId':'${id}'
+		},function (data) {
+			var transactionRemark = data.t;
+			if (data.ok){
+				layer.alert(data.mess, {icon: 6});
+				//    清空文本框
+				$("#remark").val("");
+				addRemark(transactionRemark);
+			}else {
+				layer.alert(data.mess, {icon: 4});
+			}
+		},'json');
+
+	}
+
+
+
 
 
 </script>

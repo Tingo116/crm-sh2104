@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Stage {
+//    这是交易阶段 用来显示交易进度条的  根据
 
     private String type;//交易图标类型 绿圈、黑圈
     private String content;//交易图标上的文本内容

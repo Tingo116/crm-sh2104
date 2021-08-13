@@ -40,6 +40,8 @@
             <tx:method name="bind*" propagation="REQUIRED" />
             <tx:method name="unbind*" propagation="REQUIRED" />
             <tx:method name="convert*" propagation="REQUIRED" />
+            <tx:method name="select*" propagation="REQUIRED" />
+            <tx:method name="stage*" propagation="REQUIRED" />
             <tx:method name="*" propagation="REQUIRED" read-only="true" />
         </tx:attributes>
     </tx:advice>

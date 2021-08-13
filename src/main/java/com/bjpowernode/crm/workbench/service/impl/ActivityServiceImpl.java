@@ -1,6 +1,7 @@
 package com.bjpowernode.crm.workbench.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.bjpowernode.crm.base.bean.ResultVo;
 import com.bjpowernode.crm.base.exception.CrmEnum;
 import com.bjpowernode.crm.base.exception.CrmException;
@@ -15,10 +16,12 @@ import com.bjpowernode.crm.workbench.mapper.ActivityRemarkMapper;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.usermodel.Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +34,7 @@ public class ActivityServiceImpl implements ActivityService {
     private UserMapper userMapper;
     @Autowired
     private ActivityRemarkMapper activityRemarkMapper;
+
     @Override
     public PageInfo<Activity> list(Integer page, Integer pageSize, Activity activity) {
         Example example = new Example(Activity.class);
@@ -43,15 +47,15 @@ public class ActivityServiceImpl implements ActivityService {
         }*/
         //判断市场活动名称
         String name = activity.getName();
-        if(StrUtil.isNotEmpty(name)){
-            criteria.andLike("name","%" + name + "%");
+        if (StrUtil.isNotEmpty(name)) {
+            criteria.andLike("name", "%" + name + "%");
         }
 
 
         //判断各个输入框是否有数据   点击查询按钮
         //判断所有者  先根据名字模糊查询   获得所有的主键  遍历出ｉｄ
         String owner = activity.getOwner();
-        if (StrUtil.isNotEmpty(owner)){
+        if (StrUtil.isNotEmpty(owner)) {
             Example example1 = new Example(User.class);
             example1.createCriteria().andLike("name", "%" + owner + "%");
             List<User> users = userMapper.selectByExample(example1);
@@ -62,18 +66,18 @@ public class ActivityServiceImpl implements ActivityService {
                 ids.add(id);
             }
             //把条件拼进活动的查询
-            criteria.andIn("owner",ids);
+            criteria.andIn("owner", ids);
         }
 
 
         //判断开始日期
         String startDate = activity.getStartDate();
-        if (StrUtil.isNotEmpty(startDate)){
+        if (StrUtil.isNotEmpty(startDate)) {
             criteria.andGreaterThanOrEqualTo("startDate", startDate);
         }
         //判断结束日期
         String endDate = activity.getEndDate();
-        if (StrUtil.isNotEmpty(endDate)){
+        if (StrUtil.isNotEmpty(endDate)) {
             criteria.andLessThanOrEqualTo("endDate", endDate);
         }
         //设置分页
@@ -108,20 +112,20 @@ public class ActivityServiceImpl implements ActivityService {
             //设置创建时间
             activity.setCreateTime(DateTimeUtil.getSysTime());
             int i = activityMapper.insertSelective(activity);
-            if (i == 0){
+            if (i == 0) {
                 throw new CrmException(CrmEnum.ACTIVITY_INSERT);
             }
 
             //添加成功的提示信息
             resultVo.setMess("添加市场活动成功！！！");
-        }else {
+        } else {
             //这里是修改
             //设置修改时间
             activity.setEditBy(user.getName());
             //设置修改时间
             activity.setEditTime(DateTimeUtil.getSysTime());
             int i = activityMapper.updateByPrimaryKeySelective(activity);
-            if (i == 0){
+            if (i == 0) {
                 throw new CrmException(CrmEnum.ACTIVITY_UPDATE);
             }
             //添加成功信息
@@ -143,14 +147,14 @@ public class ActivityServiceImpl implements ActivityService {
         Example example = new Example(Activity.class);
         example.createCriteria().andIn("id", list);
         int i = activityMapper.deleteByExample(example);
-        if (i == 0){
+        if (i == 0) {
             throw new CrmException(CrmEnum.ACTIVITY_DELETE);
         }
         //这里其实还要删除市场活动关联的备注的信息
         Example example1 = new Example(ActivityRemark.class);
         example1.createCriteria().andIn("activityId", list);
         int i1 = activityRemarkMapper.deleteByExample(example1);
-        if (i1 == 0){
+        if (i1 == 0) {
             throw new CrmException(CrmEnum.ACTIVITY_REMARK_DELETE);
         }
         resultVo.setMess("删除市场活动成功！！");
@@ -197,14 +201,12 @@ public class ActivityServiceImpl implements ActivityService {
         activityRemark.setOwner(user.getId());
         activityRemark.setCreateTime(DateTimeUtil.getSysTime());
         int i = activityRemarkMapper.insertSelective(activityRemark);
-        if (i == 0){
+        if (i == 0) {
             throw new CrmException(CrmEnum.ACTIVITY_REMARK_INSERT);
         }
 
         Activity activity = activityMapper.selectByPrimaryKey(activityRemark.getActivityId());
         activityRemark.setActivityId(activity.getName());
-
-
         return activityRemark;
     }
 
@@ -212,7 +214,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public void deleteRemark(String id) {
         int i = activityRemarkMapper.deleteByPrimaryKey(id);
-        if (i == 0){
+        if (i == 0) {
             throw new CrmException(CrmEnum.ACTIVITY_REMARK_DELETE);
         }
     }
@@ -226,13 +228,54 @@ public class ActivityServiceImpl implements ActivityService {
         activityRemark.setImg(user.getImg());
         activityRemark.setEditTime(DateTimeUtil.getSysTime());
         int i = activityRemarkMapper.updateByPrimaryKeySelective(activityRemark);
-        if (i == 0){
+        if (i == 0) {
             throw new CrmException(CrmEnum.ACTIVITY_REMARK_UPDATE);
         }
 
         //设置备注的活动名称
 //        activityRemark.setActivityId(activityMapper.selectByPrimaryKey(activityRemark.getActivityId()).getName());
 
+    }
+
+
+    //导出数据表格
+    @Override
+    public ExcelWriter exportExcel(ExcelWriter writer) {
+        //反射获取原类的属性数组
+        Field[] declaredFields = Activity.class.getDeclaredFields();
+        List<Activity> activities = activityMapper.selectAll();
+        // 定义单元格背景色
+      /*  StyleSet style = writer.getStyleSet();
+        // 第二个参数表示是否也设置头部单元格背景
+        style.setBackgroundColor(IndexedColors.RED, false);*/
+
+        //设置内容字体
+        Font font = writer.createFont();
+        font.setBold(true);
+        font.setColor(Font.COLOR_NORMAL);
+        font.setItalic(true);
+        //第二个参数表示是否忽略头部样式
+        writer.getStyleSet().setFont(font, true);
+
+        //设置表格头部
+        //自定义标题别名
+        writer.addHeaderAlias("id", "id编号") ;
+        writer.addHeaderAlias("owner", "所有者") ;
+        writer.addHeaderAlias("name", "市场活动名称");
+        writer.addHeaderAlias("startDate", "开始日期") ;
+        writer.addHeaderAlias("endDate", "结束日期") ;
+        writer.addHeaderAlias("cost", "预算") ;
+        writer.addHeaderAlias("description", "描述") ;
+        writer.addHeaderAlias("createTime", "创建日期") ;
+        writer.addHeaderAlias("createBy", "创建者") ;
+        writer.addHeaderAlias("editTime", "更新时间") ;
+        writer.addHeaderAlias("editBy", "修改者") ;
+        writer.addHeaderAlias("activityRemarks", "备注");
+
+        //合并单元格
+        writer.merge(declaredFields.length - 1, "市场活动统计数据");
+        writer.write(activities, true);
+        return writer;
     }
 }
 

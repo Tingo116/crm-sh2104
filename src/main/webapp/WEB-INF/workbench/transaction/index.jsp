@@ -118,6 +118,7 @@
 				  <button type="button" class="btn btn-primary" onclick="window.location.href='/crm/toView/workbench/transaction/save';"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" onclick="openUpdateModal()" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" onclick="deleteTransaction()" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+					<button type="button" onclick="exportExcel()" class="btn btn-success"><span class="glyphicon glyphicon-download-alt"></span> 导出报表</button>
 				</div>
 				
 				
@@ -306,6 +307,15 @@
 		}
 
 	}
+
+	//导出报表
+	function exportExcel() {
+		location.href = "/crm/workbench/transaction/exportExcel";
+
+	}
+
+
+	//表单提交验证
 
 </script>
 </body>

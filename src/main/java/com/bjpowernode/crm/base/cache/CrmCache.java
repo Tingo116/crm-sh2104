@@ -12,8 +12,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 //经常用到的数据  存放到缓存区中 避免反复查询
 @Component
@@ -63,6 +62,22 @@ public class CrmCache {
         }
         //将其放入缓存区中
         servletContext.setAttribute("dics",dics);
+
+        //3.缓冲状态与可能性
+        // 注意  这里采用的是读取配置文件的方法
+        //文件路径要注意 用.不能用/   不用写properties结尾
+        ResourceBundle bundle = ResourceBundle.getBundle("mybatis.Stage2Possibility");
+        Enumeration<String> keys = bundle.getKeys();
+        TreeMap<String, String> stage2Possibility = new TreeMap<>();
+        //遍历
+        while (keys.hasMoreElements()){
+            String key = keys.nextElement();
+            String value = bundle.getString(key);
+            stage2Possibility.put(key,value);
+        }
+        //放进缓存区
+        servletContext.setAttribute("stage2Possibility",stage2Possibility);
+
 
 
     }

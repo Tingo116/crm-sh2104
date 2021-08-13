@@ -1,5 +1,6 @@
 package com.bjpowernode.crm.workbench.service;
 
+import cn.hutool.poi.excel.ExcelWriter;
 import com.bjpowernode.crm.settings.bean.User;
 import com.bjpowernode.crm.workbench.bean.Activity;
 import com.bjpowernode.crm.workbench.bean.Clue;
@@ -39,4 +40,6 @@ public interface ClueService {
     Clue queryClueById(String id);
 
     void updateClue(Clue clue, User user);
+
+    ExcelWriter exportExcel(ExcelWriter writer);
 }

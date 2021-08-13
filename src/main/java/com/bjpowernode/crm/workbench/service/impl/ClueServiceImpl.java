@@ -1,6 +1,7 @@
 package com.bjpowernode.crm.workbench.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.bjpowernode.crm.base.exception.CrmEnum;
 import com.bjpowernode.crm.base.exception.CrmException;
 import com.bjpowernode.crm.base.util.DateTimeUtil;
@@ -12,10 +13,12 @@ import com.bjpowernode.crm.workbench.mapper.*;
 import com.bjpowernode.crm.workbench.service.ClueService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.usermodel.Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -520,5 +523,33 @@ public class ClueServiceImpl implements ClueService {
             throw new CrmException(CrmEnum.CLUE_UPDATE);
         }
 
+    }
+
+
+    //导出表格
+    @Override
+    public ExcelWriter exportExcel(ExcelWriter writer) {
+        //反射获取原类的属性数组
+        Field[] declaredFields = Clue.class.getDeclaredFields();
+        List<Clue> clues = clueMapper.selectAll();
+        // 定义单元格背景色
+      /*  StyleSet style = writer.getStyleSet();
+        // 第二个参数表示是否也设置头部单元格背景
+        style.setBackgroundColor(IndexedColors.RED, false);*/
+
+        //设置内容字体
+        Font font = writer.createFont();
+        font.setBold(true);
+        font.setColor(Font.COLOR_NORMAL);
+        font.setItalic(true);
+        //第二个参数表示是否忽略头部样式
+        writer.getStyleSet().setFont(font, true);
+
+        //设置表格头部
+        //自定义标题别名
+        //合并单元格
+        writer.merge(declaredFields.length - 1, "线索统计数据");
+        writer.write(clues, true);
+        return writer;
     }
 }

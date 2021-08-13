@@ -1,6 +1,9 @@
 package com.bjpowernode.crm.workbench.controller;
 
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.bjpowernode.crm.base.bean.ResultVo;
 import com.bjpowernode.crm.base.exception.CrmException;
 import com.bjpowernode.crm.settings.bean.User;
@@ -13,7 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Controller
 public class activityController {
@@ -119,6 +125,24 @@ public class activityController {
         }
         return resultVo;
     }
+
+
+
+        //    导出报表
+        @RequestMapping("/workbench/activity/exportExcel")
+        public void exportExcel(HttpServletResponse response) throws IOException {
+            ExcelWriter writer = ExcelUtil.getWriter(true);
+            writer = activityService.exportExcel(writer);
+
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+            response.setHeader("Content-Disposition","attachment;filename=activityExcel.xlsx");
+            ServletOutputStream outputStream = response.getOutputStream();
+            writer.flush(outputStream, true);
+            writer.close();
+            IoUtil.close(outputStream);
+
+        }
+
 
 
 

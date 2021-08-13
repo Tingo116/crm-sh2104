@@ -1,21 +1,20 @@
-package com.bjpowernode.crm.workbench.mapper;
+package com.bjpowernode.crm.workbench.service;
 
 import com.bjpowernode.crm.workbench.bean.BarVo;
 import com.bjpowernode.crm.workbench.bean.PieVo;
 
 import java.util.List;
 
-public interface ChartsMapper {
-
-    List<BarVo> tranBarChart();
+public interface ChartService {
+    BarVo tranBarChart();
 
     List<PieVo> tranPieChart();
 
-    List<BarVo> ActivityBarChart();
+    BarVo ActivityBarChart();
 
     List<PieVo> activityPieChart();
 
-    List<BarVo> clueBarChart();
+    BarVo clueBarChart();
 
     List<PieVo> cluePieChart();
 }

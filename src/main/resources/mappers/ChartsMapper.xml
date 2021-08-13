@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace需要与接口权限定类名一致-->
+<mapper namespace="com.bjpowernode.crm.workbench.mapper.ChartsMapper">
+
+    <!--查询交易模块中的  交易进度 与个数之间的关系-->
+    <select id="tranBarChart" resultType="BarVo">
+      SELECT stage title,COUNT(*) num FROM tbl_tran GROUP BY stage ORDER BY stage
+    </select>
+
+    <!--注意这里的别名要与返回值类型中的  字段对应   否则无法封装进去-->
+    <select id="tranPieChart" resultType="PieVo">
+        SELECT stage name,COUNT(*) value FROM tbl_tran GROUP BY stage ORDER BY stage
+    </select>
+
+
+    <!--市场活动花费和数目的关系-->
+    <select id="ActivityBarChart" resultType="BarVo">
+        SELECT COUNT(*) num,cost title FROM tbl_activity GROUP BY cost ORDER BY cost
+    </select>
+
+    <select id="activityPieChart" resultType="PieVo">
+        SELECT cost name,COUNT(*) value FROM tbl_activity GROUP BY cost
+    </select>
+<!--线索模块-->
+    <select id="clueBarChart" resultType="BarVo">
+        SELECT COUNT(*) num,state title FROM tbl_clue GROUP BY state
+    </select>
+
+    <select id="cluePieChart" resultType="PieVo">
+        SELECT state name,COUNT(*) value FROM tbl_clue GROUP BY state
+    </select>
+
+
+</mapper>

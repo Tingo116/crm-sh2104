@@ -1,5 +1,6 @@
 package com.bjpowernode.crm.workbench.service;
 
+import cn.hutool.poi.excel.ExcelWriter;
 import com.bjpowernode.crm.base.bean.ResultVo;
 import com.bjpowernode.crm.settings.bean.User;
 import com.bjpowernode.crm.workbench.bean.Customer;
@@ -20,4 +21,6 @@ public interface CustomerService {
     ResultVo addRemark(CustomerRemark customerRemark, User user);
 
     void deleteCustomerRemark(String id);
+
+    ExcelWriter exportExcel(ExcelWriter writer);
 }

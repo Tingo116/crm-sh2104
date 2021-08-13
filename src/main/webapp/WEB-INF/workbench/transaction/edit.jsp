@@ -17,6 +17,9 @@
             src="/crm/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
 </head>
+
+
+
 <body>
 
 <!-- 查找市场活动 -->
@@ -257,8 +260,8 @@
         $("#edit-possibility").val(data.possibility);
         $("#edit-transactionType").val(data.type);
         $("#edit-clueSource").val(data.source);
-        $("#edit-activitySrc").val(data.activityName);
-        $("#edit-contactsName").val(data.contactName);
+        $("#edit-activitySrc").val(data.activityId);
+        $("#edit-contactsName").val(data.contactsId);
 
         $("#create-describe").val(data.description);
         $("#create-contactSummary").val(data.contactSummary);
@@ -278,9 +281,20 @@
                 //更新成功  返回index页面
                 window.location.href = '/crm/toView/workbench/transaction/index'
             }
-
         }, 'json');
     }
+
+    //修改交易状态的时候   同步修改下面的可能性
+   $("#edit-transactionStage").change(function () {
+       //查询可能性
+       $.post("/crm/workbench/transaction/bindPossibility",{
+           'stage':$(this).val()
+       },function (data) {
+           //返回可能性  直接返回String
+           // 绑定到可能性的输入框
+           $("#edit-possibility").val(data);
+       },'json');
+   });
 
     //按下回车键，查询满足条件的市场活动
     $('#activityName').keypress(function (event) {
@@ -308,7 +322,7 @@
     });
 
     //添加两个按钮
-    //点击确定按钮  将值设置到更新页面中
+    //点击确定按钮  将值设置到页面中
     function confirmActivity() {
         //获取选中的市场活动的名字
         var name = $(".son:checked").parent().next().text();
@@ -317,7 +331,7 @@
         $("#edit-activitySrc").val(name);
         var id = $(".son:checked").val();
         //把id设置到隐藏域中
-        $("#aid").val(id);
+        $("#aid").val(name);
     }
 
     //按下回车键，查询满足条件的市场活动
@@ -333,7 +347,7 @@
                 for (var i = 0; i < data.length; i++) {
                     var contact = data[i];
                     content += "<tr>\n" +
-                        "\t\t\t\t\t\t\t\t<td><input class='son' type=\"radio\" value=" + contact.id + " /></td>\n" +
+                        "\t\t\t\t\t\t\t\t<td><input class='son1' type=\"radio\" value=" + contact.id + " /></td>\n" +
                         "\t\t\t\t\t\t\t\t<td>" + contact.fullname + "</td>\n" +
                         "\t\t\t\t\t\t\t\t<td>" + contact.email + "</td>\n" +
                         "\t\t\t\t\t\t\t\t<td>" + contact.mphone + "</td>\n" +
@@ -348,13 +362,13 @@
     //点击确定按钮  将值设置到更新页面中
     function confirmContact() {
         //获取选中的市场活动的名字
-        var name = $(".son:checked").parent().next().text();
+        var name = $(".son1:checked").parent().next().text();
         // alert(name);
         // 将这个值设置到活动源中
         $("#edit-contactsName").val(name);
-        var id = $(".son:checked").val();
+        var id = $(".son1:checked").val();
         //把id设置到隐藏域中
-        $("#cid").val(id);
+        $("#cid").val(name);
     }
 </script>
 </body>

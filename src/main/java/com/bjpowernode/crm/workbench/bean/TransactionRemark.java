@@ -6,6 +6,7 @@ import tk.mybatis.mapper.code.Style;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Data
 @Table(name = "tbl_tran_remark")
@@ -21,4 +22,7 @@ public class TransactionRemark {
     private String editTime;
     private String editFlag;
     private String tranId;
+
+    @Transient
+    private String img;
 }

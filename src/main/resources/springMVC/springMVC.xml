@@ -46,4 +46,14 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
+    <!--登录拦截器:只拦截请求url地址-->
+<!--    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/image/**" />
+            <mvc:exclude-mapping path="/jquery/**" />
+            <bean class="com.bjpowernode.crm.base.interceptor.LoginInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>-->
+
 </beans>

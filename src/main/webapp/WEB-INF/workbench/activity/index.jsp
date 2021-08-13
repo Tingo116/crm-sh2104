@@ -222,6 +222,7 @@
 				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" onclick="openUpdateModal()"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" onclick="deleteActivity()" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" onclick="exportExcel()" class="btn btn-success"><span class="glyphicon glyphicon-download-alt"></span> 导出报表</button>
 				</div>
 				
 			</div>
@@ -439,7 +440,12 @@
 		}else {
 			layer.alert("先选中再来吧", {icon: 4});
 		}
-
+	}
+	
+	//导出报表
+	function exportExcel() {
+		location.href = "/crm/workbench/activity/exportExcel";
+		
 	}
 
 

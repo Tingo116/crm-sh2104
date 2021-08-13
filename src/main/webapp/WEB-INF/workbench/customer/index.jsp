@@ -252,6 +252,7 @@
 				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCustomerModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" onclick="openModal()"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" onclick="deleteCustomer()" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+					<button type="button" onclick="exportExcel()" class="btn btn-success"><span class="glyphicon glyphicon-download-alt"></span> 导出报表</button>
 				</div>
 				
 			</div>
@@ -464,9 +465,13 @@
 				//把id设置到隐藏域中
 				$("#customerId").val(data.id);
 			},'json')
-
-
 		}
+	}
+
+	//导出报表
+	function exportExcel() {
+		location.href = "/crm/workbench/customer/exportExcel";
+
 	}
 
 
